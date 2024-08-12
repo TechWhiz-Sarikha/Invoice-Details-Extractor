@@ -1,0 +1,56 @@
+import openai
+from PyPDF2 import PdfReader
+
+# Replace 'your-api-key' with your actual OpenAI API key
+openai.api_key = 'your-api-key'
+
+def extract_text_from_pdf(pdf_file):
+    pdf = PdfReader(pdf_file)
+    text = ""
+    for page in pdf.pages:
+        text += page.extract_text() or ""
+    return text
+
+def extract_details_with_openai(text, temperature=0.5):
+    prompt = "Extract the following details from the text:\n"
+
+    # Add the details you want to extract below
+    prompt += "1. [Specify detail 1]\n"
+    prompt += "2. [Specify detail 2]\n"
+    prompt += "3. [Specify detail 3]\n"
+
+    prompt += f"\nThe text is: {text}\n\nPlease provide the details in the following format:\n\n"
+
+    # Add the format you want the extracted details to follow
+    prompt += "[Detail 1]: [Fill with detail 1 format]\n"
+    prompt += "[Detail 2]: [Fill with detail 2 format]\n"
+    prompt += "[Detail 3]: [Fill with detail 3 format]\n"
+
+    response = openai.ChatCompletion.create(
+        model="gpt-3.5-turbo",
+        messages=[{"role": "user", "content": prompt}],
+        max_tokens=1500,
+        n=1,
+        stop=None,
+        temperature=temperature,
+    )
+
+    return response.choices[0].message['content'].strip()
+
+# Example usage
+if __name__ == "__main__":
+    # Path to your PDF file
+    pdf_file_path = "path_to_your_invoice.pdf"  # Replace with your PDF file path
+
+    # Open the PDF file and extract text
+    with open(pdf_file_path, "rb") as pdf_file:
+        pdf_text = extract_text_from_pdf(pdf_file)
+        
+        # Extract the desired details
+        extracted_details = extract_details_with_openai(
+            pdf_text, 
+            temperature=0.5
+        )
+        
+        # Print extracted details
+        print(extracted_details)
